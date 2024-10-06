@@ -1,22 +1,23 @@
-@Library('shared-lib') _
+@Library('shared-lib@main') _
 
 pipeline {
     agent any
-
+    tools {
+        maven 'Maven_Home'
+    }
     stages {
         stage('Checkout') {
             steps {
-                script {
-                  checkoutGitRepo('master', 'https://github.com/promo286/addressbook.git')
-                }
+                checkoutGitRepo('master', 'https://github.com/promo286/addressbook.git')
             }
-        }
+        } 
 
         stage('Test') {
             steps {
                 script {
-                    
+                    echo 'Running tests...'
                     runTests()
+                    echo 'Tests completed.'
                 }
             }
         }
@@ -24,11 +25,12 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                  
+                    echo 'Building project...'
                     buildMavenProject()
+                    echo 'Build completed.'
                 }
             }
-        }
+        } 
     }
 
     post {
