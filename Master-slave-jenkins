@@ -1,0 +1,40 @@
+pipeline {
+    agent { label 'Slave-jenkins' }
+    options {
+        buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '30', numToKeepStr: '2'))
+    }
+    tools {
+        maven 'Maven_Home'
+    }
+    stages {
+        stage('Git-Checkout') {
+            steps {
+                checkout(scm: [$class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    userRemoteConfigs: [[url: 'https://github.com/promo286/addressbook.git']]
+                ])
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+    }
+    post {
+        success {
+            emailext body: 'Pipeline is successful', subject: 'Pipeline Success', to: 'gojowe9880@scarden.com'
+        }
+        failure {
+            emailext body: 'Pipeline has failed', subject: 'Pipeline Failure', to: 'gojowe9880@scarden.com'
+        }
+        unstable {
+            emailext body: 'Pipeline is unstable', subject: 'Pipeline Unstable', to: 'gojowe9880@scarden.com'
+        }
+    }
+}
